@@ -16,15 +16,15 @@
   - 4040:4040/tcp
   volumes:
   - container: "/music"
-    bind: "/portainer/Music"
+    bind: "!music"
   - container: "/playlists"
-    bind: "/portainer/Files/AppData/Airsonic/Playlists"
+    bind: "!playlists"
   - container: "/podcasts"
-    bind: "/portainer/Podcasts"
+    bind: "!podcasts"
   - container: "/media"
-    bind: "/portainer/Files/AppData/Airsonic/Media"
+    bind: "!media/Airsonic"
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Airsonic/"
+    bind: "!config/Airsonic/"
   env:
   - name: PUID
     label: PUID
@@ -32,12 +32,47 @@
   - name: PGID
     label: PGID
     default: '100'
-  - name: CONTEXT_PATH
-    label: CONTEXT_PATH
-    set: airsonic
   - name: JAVA_OPTS
     label: JAVA_OPTS
-    set: "-Xms256m -Xmx512m"
+    default: "-Xms256m -Xmx512m"
+- type: 1
+  title: EmbyStat
+  name: EmbyStat
+  description: Embystat is a personal web server that can calculate all kinds of statistics
+    from your (local) Emby server. Just install this on your server and let him calculate
+    all kinds of fun stuff.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/embystat.png
+  image: linuxserver/embystat:latest
+  categories:
+  - Other
+  - Tools
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 6555:6555/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/EmbyStat"
+  note: Access the ui at your-ip:6555. Follow the setup wizard on initial install.
+    Then configure the required services.
+- type: 1
+  title: Snibox
+  name: Snibox
+  description: Self-hosted snippet manager.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/snibox.png
+  image: snowmean/snibox-sqlite:latest
+  categories:
+  - Other
+  - Tools
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 3010:3000/tcp
+  volumes:
+  - container: "/app/db/database"
+    bind: "!config/Snibox"
+  note: Label-oriented interface with search. Supports various programming languages,
+    markdown, plain text.
 - type: 1
   title: Authelia
   name: authelia
@@ -57,13 +92,13 @@
   - 9091:9091/tcp
   volumes:
   - container: "/etc/authelia/"
-    bind: "/portainer/Files/AppData/Config/Authelia"
+    bind: "!config/Authelia"
   env:
   - name: TZ
     label: TZ
 - type: 1
   title: Bazarr
-  name: bazarr
+  name: Bazarr
   description: Bazarr is a companion application to Sonarr and Radarr. It can manage
     and download subtitles based on your requirements. You define your preferences
     by TV show or movie and Bazarr takes care of everything for you.
@@ -78,11 +113,11 @@
   - 6767:6767/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Bazarr"
+    bind: "!config/Bazarr"
   - container: "/tv"
-    bind: "/portainer/TV"
+    bind: "!tv"
   - container: "/movies"
-    bind: "/portainer/Movies"
+    bind: "!movies"
   env:
   - name: PUID
     label: PUID
@@ -109,11 +144,11 @@
   - 8337:8337/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Beets"
+    bind: "!config/Beets"
   - container: "/downloads"
-    bind: "/portainer/Downloads"
+    bind: "!downloads"
   - container: "/music"
-    bind: "/portainer/Music"
+    bind: "!music"
   env:
   - name: PUID
     label: PUID
@@ -137,10 +172,10 @@
   platform: linux
   restart_policy: unless-stopped
   ports:
-  - 80/tcp
+  - ":80/tcp"
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Bitwarden-rs"
+    bind: "!config/Bitwarden-rs"
 - type: 1
   title: Booksonic
   name: booksonic
@@ -158,11 +193,11 @@
   - 4040:4040/tcp
   volumes:
   - container: "/books"
-    bind: "/portainer/Books"
+    bind: "!books"
   - container: "/podcast"
-    bind: "/portainer/Files/Podcasts"
+    bind: "!podcasts"
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Booksonic"
+    bind: "!config/Booksonic"
   env:
   - name: PUID
     label: PUID
@@ -174,25 +209,607 @@
     label: CONTEXT_PATH
     default: booksonic
 - type: 1
-  title: EmbyStat
-  name: embystat
-  description: Embystat is a personal web server that can calculate all kinds of statistics
-    from your (local) Emby server. Just install this on your server and let him calculate
-    all kinds of fun stuff.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/embystat.png
-  image: linuxserver/embystat:latest
+  title: COPS
+  name: cops
+  description: COPS links to your Calibre library database and allows downloading
+    and emailing of books directly from a web browser and provides a OPDS feed to
+    connect to your devices.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/cops-icon.png
+  image: linuxserver/cops:latest
+  categories:
+  - Cloud
+  - Books
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 80/tcp
+  volumes:
+  - container: "/books"
+    bind: "!books"
+  - container: "/config"
+    bind: "!config/Cops"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+- type: 1
+  title: Calibre Web
+  name: calibre-web
+  description: |-
+    Calibre Web is a web app providing a clean interface for browsing, reading and downloading eBooks using an existing Calibre database.
+
+      [br][br]
+      [b][u][span style='color: #E80000;']Configuration[/span][/u][/b][br]
+      [b]/config[/b] Where Calibre-web should store it's database[br]
+      [b]/books[/b] Path to your calibre library metadata.db file[br]
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/calibre-web-icon.png
+  image: linuxserver/calibre-web:latest
+  categories:
+  - Cloud
+  - Books
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 8083:8083/tcp
+  volumes:
+  - container: "/books"
+    bind: "!books"
+  - container: "/config"
+    bind: "!config/Calibre-web"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+- type: 1
+  title: Cardigann
+  name: cardigann
+  description: Cardigann, a server for adding extra indexers to Sonarr, SickRage and
+    CouchPotato via Torznab and TorrentPotato proxies. Behind the scenes Cardigann
+    logs in and runs searches and then transforms the results into a compatible format.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/cardigann.png
+  image: linuxserver/cardigann:latest
+  categories:
+  - Downloaders
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 5060:5060/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/Cardigann"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+- type: 1
+  title: Chevereto
+  name: Chevereto
+  description: Chevereto is a powerful and fast image hosting script that allows you
+    to create your very own full featured image hosting website in just minutes. Please
+    note that this offers only the free Chevereto version..
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/Chevereto.png
+  image: nmtan/chevereto:latest
+  categories:
+  - Other
+  - Tools
+  - Photo
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 80/tcp
+  volumes:
+  - container: "/var/www/html/images"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+  - name: CHEVERETO_DB_HOST
+    label: CHEVERETO_DB_HOST
+    default: ''
+  - name: CHEVERETO_DB_USERNAME
+    label: CHEVERETO_DB_USERNAME
+    default: ''
+  - name: CHEVERETO_DB_PASSWORD
+    label: CHEVERETO_DB_PASSWORD
+    default: ''
+  - name: CHEVERETO_DB_NAME
+    label: CHEVERETO_DB_NAME
+    default: ''
+  - name: CHEVERETO_DB_PREFIX
+    label: CHEVERETO_DB_PREFIX
+    default: ''
+- type: 1
+  title: Chowdown
+  name: Chowdown
+  description: ave recipes in seconds with plain text formatting and create beatiful
+    recipe pages with automated ease.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/chowdown.png
+  image: gregyankovoy/chowdown:latest
   categories:
   - Other
   - Tools
   platform: linux
   restart_policy: unless-stopped
   ports:
-  - 6555:6555/tcp
+  - 4000:4000/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/EmbyStat"
-  note: Access the ui at your-ip:6555. Follow the setup wizard on initial install.
-    Then configure the required services.
+    bind: "!config/Chowdown"
+- type: 1
+  title: Code Server
+  name: code-server
+  description: Code-server is VS Code running on a remote server, accessible through
+    the browser.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/code-server.png
+  image: linuxserver/code-server:latest
+  categories:
+  - Other
+  - Tools
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 8443:8443/tcp
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: GUID
+    label: PUID
+    default: '1000'
+  - name: TZ
+    label: TZ
+  - name: PASSWORD
+    label: PASSWORD
+  - name: SUDO_PASSWORD
+    label: SUDO_PASSWORD
+  - name: PROXY_DOMAIN
+    label: PROXY_DOMAIN
+    default: example.my.domain
+  volumes:
+  - container: "/config"
+    bind: "!config/Code-Server"
+- type: 1
+  title: Codiad
+  name: codiad
+  description: "Codiad is a web-based IDE framework with a small footprint and minimal
+    requirements.\n  "
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/codiad-icon.png
+  image: linuxserver/codiad:latest
+  categories:
+  - Productivity
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 80/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/Codiad"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+- type: 1
+  title: CouchPotato
+  name: couchpotato
+  description: CouchPotato (CP) is an automatic NZB and torrent downloader. You can
+    keep a "movies I want"-list and it will search for NZBs/torrents of these movies
+    every X hours. Once a movie is found, it will send it to SABnzbd or download the
+    torrent to a specified directory.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/couchpotato-icon.png
+  image: linuxserver/couchpotato:latest
+  categories:
+  - Downloaders
+  - Video
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 5050:5050/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/Couchpotato"
+  - container: "/downloads"
+    bind: "!downloads"
+  - container: "/movies"
+    bind: "!movies"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+- type: 1
+  title: Daapd
+  name: daapd
+  description: DAAP (iTunes) media server with support for AirPlay devices, Apple
+    Remote (and compatibles), MPD and internet radio.
+  logo: https://raw.githubusercontent.com/linuxserver/beta-templates/master/lsiodev/img/daapd-icon.png
+  image: linuxserver/daapd:latest
+  categories:
+  - Music
+  platform: linux
+  restart_policy: unless-stopped
+  volumes:
+  - container: "/config"
+    bind: "!config/Daapd"
+  - container: "/music"
+    bind: "!music"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+- type: 1
+  title: DashMachine
+  name: dashmachine
+  description: Another application bookmark dashboard, with fun features.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/dashmachine_logo.png
+  image: rmountjoy/dashmachine:latest
+  categories:
+  - Other
+  - Tools
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 5000:5000/tcp
+  volumes:
+  - container: "/dashmachine/dashmachine/user_data"
+    bind: "!config/Dashmachine"
+- type: 1
+  title: Davos
+  name: davos
+  description: "davos is an FTP automation tool that periodically scans given host
+    locations for new files. It can be configured for various purposes, including
+    listening for specific files to appear in the host location, ready for it to download
+    and then move, if required. It also supports completion notifications as well
+    as downstream API calls, to further the workflow.\r\n\r\n/config : AppData Location\r\n/download
+    : File Download Location"
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/davos.png
+  image: linuxserver/davos:latest
+  categories:
+  - FTP
+  - Other
+  - Tools
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 8080/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/Davos"
+  - container: "/downloads"
+    bind: "!downloads"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+- type: 1
+  title: DeeMix
+  name: deemix
+  description: Deemix is a deezer downloader built from the ashes of Deezloader Remix.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/deemix.png
+  image: registry.gitlab.com/bockiii/deemix-docker
+  categories:
+  - Other
+  - Music
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 9666:9666/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/DeeMix"
+  - container: "/downloads"
+    bind: "!downloads"
+  note: Deemix may take a few minutes to install. Be sure to check the logs for details.
+    Refer to <a href='https://notabug.org/RemixDevs/DeezloaderRemix/wiki/Login+via+userToken'>this
+    page</a> for userToken details.
+- type: 1
+  title: Deluge
+  namme: deluge
+  description: 'Deluge is a lightweight, Free Software, cross-platform BitTorrent
+    client providing: Full Encryption, WebUI, Plugin System, Much more...'
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/deluge-icon.png
+  image: linuxserver/deluge:latest
+  categories:
+  - Downloaders
+  platform: linux
+  restart_policy: unless-stopped
+  volumes:
+  - container: "/config"
+    bind: "!config/Deluge"
+  - container: "/downloads"
+    bind: "!downloads"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+  - name: UMASK_SET
+    label: UMASK_SET
+    default: '000'
+- type: 1
+  title: Domoticz
+  name: domoticz
+  description: 'Domoticz is a Home Automation System that lets you monitor and configure
+    various devices like: Lights, Switches, various sensors/meters like Temperature,
+    Rain, Wind, UV, Electra, Gas, Water and much more. Notifications/Alerts can be
+    sent to any mobile device'
+  logo: https://github.com/domoticz/domoticz/raw/master/www/images/logo.png
+  image: linuxserver/domoticz:latest
+  categories:
+  - HomeAutomation
+  - Management
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 1443:1443/tcp
+  - 6144:6144/tcp
+  - 8080:8080/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/Domoticz"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+- type: 1
+  title: Duck DNS
+  name: duckdns
+  description: "Duck DNS is a free service which will point a DNS (sub domains of
+    duckdns.org) to an IP of your choice. The service is completely free, and doesn't
+    require reactivation or forum posts to maintain its existence.\r\n\r\nFirst, go
+    to duckdns site, register your subdomain and retrieve your token\r\nThen run the
+    docker create command above with your subdomain(s) and token\r\nIt will update
+    your IP with the DuckDNS service every 5 minutes\r\n\r\n"
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/duckdns.png
+  image: linuxserver/duckdns:latest
+  categories:
+  - DNS
+  - Tools
+  platform: linux
+  restart_policy: unless-stopped
+  env:
+  - name: SUBDOMAINS
+    label: SUBDOMAINS
+    default: ''
+  - name: TOKEN
+    label: TOKEN
+    default: ''
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+- type: 1
+  title: Duplicati
+  name: duplicati
+  description: Free backup software to store encrypted backups online, Duplicati works
+    with standard protocols like FTP, SSH, WebDAV as well as popular services like
+    Microsoft OneDrive, Amazon Cloud Drive and S3, Google Drive, box.com, Mega, hubiC
+    and many others.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/duplicati-icon.png
+  image: linuxserver/duplicati:latest
+  categories:
+  - Backup
+  - Cloud
+  - Other
+  - Productivity
+  - Tools
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 8200:8200/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/Duplicati"
+  - container: "/tmp"
+  - container: "/backups"
+  - container: "/source"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+- type: 1
+  title: Emby
+  name: Emby
+  description: Emby organizes video, music, live TV, and photos from personal media
+    libraries and streams them to smart TVs, streaming boxes and mobile devices. This
+    container is packaged as a standalone emby Media Server.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/emby.png
+  image: linuxserver/emby:latest
+  categories:
+  - Video
+  - Music
+  - Photos
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 8096:8096/tcp
+  - 8920:8920/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/Emby"
+  - container: "/data/tvshows"
+    bind: "!tv"
+  - container: "/data/movies"
+    bind: "!movies"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+  - name: TZ
+    label: TZ
+- type: 1
+  title: FileBrowser
+  name: filebrowser
+  description: Web File Browser which can be used as a middleware or standalone app.
+  note: The default user and password is admin/admin.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/filebrowser.png
+  image: 80x86/filebrowser:latest
+  categories:
+  - Other
+  - Tools
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 8082:8082/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/FileBrowser"
+  - container: "/myfiles"
+    bind: "!config"
+- type: 1
+  title: FreshRSS
+  name: freshrss
+  description: A free, self-hostable rss aggregator…
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/freshrss-icon.png
+  image: linuxserver/freshrss:latest
+  categories:
+  - Other
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 80/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/freshrss"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+- type: 1
+  title: Gazee
+  name: gazee
+  description: A WebApp Comic Reader for your favorite digital comics. Reach and read
+    your comic library from any web connected device with a modern web browser
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/gazee-logo.png
+  image: linuxserver/gazee:latest
+  categories:
+  - Web
+  - Books
+  - Tools
+  platform: linux
+  restart_policy: unless-stopped
+  volumes:
+  - container: "/config"
+    bind: "!config/Gazee"
+  - container: "/comics"
+    bind: "!comics"
+  - container: "/mylar"
+    bind: "!data/Gazee"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+- type: 1
+  title: Guacamole
+  name: guacamole
+  description: A clientless remote desktop gateway.
+  note: The default login will be guacadmin/guacadmin. It is common practice to add
+    a new admin user and remove the default user for Guacamole.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/guacamole.png
+  image: oznu/guacamole:latest
+  categories:
+  - Other
+  - Tools
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 8080:8080/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/Guacamole"
+- type: 1
+  title: Grocy
+  name: grocy
+  description: Grocy is an ERP system for your kitchen! Cut down on food waste, and
+    manage your chores with this brilliant utulity.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/grocy_logo.png
+  image: linuxserver/grocy:latest
+  categories:
+  - Other
+  - Tools
+  - Finance
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 80/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/Grocy"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+  - name: TZ
+    label: Timezone
+- type: 1
+  title: HTPC Manager
+  name: htpcmanager
+  description: HTPC Manaager, a front end for many htpc related applications. Hellowlol
+    version.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/htpcmanager-icon.png
+  image: linuxserver/htpcmanager:latest
+  categories:
+  - Video
+  - Music
+  - Other
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 8085:8085/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/HTPCmanager"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
 - type: 1
   title: Headphones
   name: headphones
@@ -207,11 +824,11 @@
   - 8181:8181/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Headphones"
+    bind: "!config/Headphones"
   - container: "/Downloads"
-    bind: "/portainer/Downloads"
+    bind: "!downloads"
   - container: "/music"
-    bind: "/portainer/Music"
+    bind: "!music"
   env:
   - name: PUID
     label: PUID
@@ -237,7 +854,7 @@
   - 443/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Heimdall"
+    bind: "!config/Heimdall"
   env:
   - name: PUID
     label: PUID
@@ -263,9 +880,9 @@
   - 8902:8080/tcp
   volumes:
   - container: "/www/assets"
-    bind: "/portainer/Files/AppData/Config/Homer/assets"
+    bind: "!config/Homer/assets"
   - container: "/www/config.yml"
-    bind: "/portainer/Files/AppData/Config/Homer"
+    bind: "!config/Homer"
 - type: 1
   title: Huginn
   name: huginn
@@ -281,38 +898,7 @@
   - 3000:3000/tcp
   volumes:
   - container: "/var/lib/mysql"
-    bind: "/portainer/Files/AppData/Config/huginn"
-- type: 3
-  title: Invoice Ninja
-  name: invoice_ninja
-  description: Invoices, Expenses and Tasks built with Laravel and Flutter.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/invoice_ninja.png
-  categories:
-  - Cloud
-  - Productivity
-  - Tools
-  - Other
-  - Web
-  note: 'The database user is invoice_ninja and the database is ninja_db. Please generate
-    an app key following the documentation <a href=''https://github.com/invoiceninja/dockerfiles''>here</a>. '
-  platform: linux
-  repository:
-    url: https://github.com/SelfhostedPro/selfhosted_templates
-    stackfile: Template/Stack/invoice-ninja.yml
-  env:
-  - name: URL
-    label: URL
-    default: invoice.my.domain
-  - name: APP_KEY
-    label: APP_KEY
-  - name: TZ
-    label: TZ
-  - name: DATABASE_PASSWORD
-    label: DATABASE_PASSWORD
-  - name: MYSQL_ROOT_PASSWORD
-    label: MYSQL_ROOT_PASSWORD
-  - name: PORT
-    label: PORT
+    bind: "!config/huginn"
 - type: 1
   title: Jackett
   name: jackett
@@ -330,9 +916,9 @@
   - 9117:9117/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Jackett"
+    bind: "!config/Jackett"
   - container: "/downloads"
-    bind: "/portainer/Downloads"
+    bind: "!downloads"
   env:
   - name: PUID
     label: PUID
@@ -360,11 +946,11 @@
   - 8920:8920/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Jelllyfin"
+    bind: "!config/Jelllyfin"
   - container: "/data/tvshows"
-    bind: "/portainer/TV"
+    bind: "!tv"
   - container: "/data/movies"
-    bind: "/portainer/Movies"
+    bind: "!movies"
   env:
   - name: PUID
     label: PUID
@@ -390,7 +976,7 @@
   - 9777/udp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Kodi"
+    bind: "!config/Kodi"
   env:
   - name: PUID
     label: PUID
@@ -451,23 +1037,23 @@
   - 443/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/LetsEncrypt"
+    bind: "!config/LetsEncrypt"
   env:
   - name: EMAIL
     label: EMAIL
-    set: "-Xms256m -Xmx512m"
+    default: "-Xms256m -Xmx512m"
   - name: URL
     label: URL
-    set: "-Xms256m -Xmx512m"
+    default: "-Xms256m -Xmx512m"
   - name: SUBDOMAINS
     label: SUBDOMAINS
-    set: www,
+    default: www,
   - name: ONLY_SUBDOMAINS
     label: ONLY_SUBDOMAINS
-    set: 'false'
+    default: 'false'
   - name: DHLEVEL
     label: DHLEVEL
-    set: '2048'
+    default: '2048'
   - name: PUID
     label: PUID
     default: '1000'
@@ -476,10 +1062,10 @@
     default: '100'
   - name: VALIDATION
     label: VALIDATION
-    set: http
+    default: http
   - name: DNSPLUGIN
     label: DNSPLUGIN
-    set: http
+    default: http
 - type: 1
   title: LibreSpeed
   name: librespeed
@@ -495,7 +1081,7 @@
   - 80/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/LibreSpeed"
+    bind: "!config/LibreSpeed"
 - type: 1
   title: Lychee
   name: lychee
@@ -516,9 +1102,9 @@
   - 80/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Lychee"
+    bind: "!config/Lychee"
   - container: "/pictures"
-    bind: "/portainer/Pictures"
+    bind: "!pictures"
   env:
   - name: PUID
     label: PUID
@@ -541,7 +1127,7 @@
   - 3306:3306/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Mariadb"
+    bind: "!config/Mariadb"
   env:
   - name: PUID
     label: PUID
@@ -551,7 +1137,7 @@
     default: '100'
   - name: MYSQL_ROOT_PASSWORD
     label: MYSQL_ROOT_PASSWORD
-    set: ''
+    default: ''
 - type: 1
   title: McMyAdmin 2
   name: mcmyadmin2
@@ -591,11 +1177,11 @@
   - 8081:8081/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Medusa"
+    bind: "!config/Medusa"
   - container: "/tv"
-    bind: "/portainer/TV"
+    bind: "!tv"
   - container: "/downloads"
-    bind: "/portainer/Downloads"
+    bind: "!downloads"
   env:
   - name: PUID
     label: PUID
@@ -668,9 +1254,9 @@
   - 3000:3000/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Mstream"
+    bind: "!config/Mstream"
   - container: "/music"
-    bind: "/portainer/Downloads"
+    bind: "!downloads"
 - type: 1
   title: Murmur
   name: murmur
@@ -689,13 +1275,13 @@
   - 64738:64738/udp
   volumes:
   - container: "/etc/localtime"
-    bind: "/etc/localtime:ro"
+    bind: "!localtime"
   - container: "/opt/murmur/config"
-    bind: "/portainer/Files/Config/Murmur"
+    bind: "!config/Murmur"
   - container: "/opt/murmur/data"
-    bind: "/portainer/Files/Murmur/data"
+    bind: "!data/Murmur"
   - container: "/opt/murmur/log"
-    bind: "/portainer/Files/Murmur/log"
+    bind: "!logs/Murmur/"
   env:
   - name: PUID
     label: PUID
@@ -722,13 +1308,13 @@
   - 5000:5000/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/MusicBrainz"
+    bind: "!config/MusicBrainz"
   - container: "/data"
-    bind: "/portainer/Files/AppData/MusicBrainz"
+    bind: "!data/MusicBrainz"
   env:
   - name: BRAINZCODE
     label: BRAINZCODE
-    set: ''
+    default: ''
   - name: PUID
     label: PUID
     default: '1000'
@@ -754,7 +1340,7 @@
   - 80/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Muximux"
+    bind: "!config/Muximux"
   env:
   - name: PUID
     label: PUID
@@ -778,11 +1364,11 @@
   - 8090:8090/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Mylar"
+    bind: "!config/Mylar"
   - container: "/downloads"
-    bind: "/portainer/Downloads"
+    bind: "!downloads"
   - container: "/comics"
-    bind: "/portainer/Comics"
+    bind: "!comics"
   env:
   - name: PUID
     label: PUID
@@ -790,26 +1376,26 @@
   - name: PGID
     label: PGID
     default: '100'
-- type: 3
-  title: Nextcloud
-  name: nextcloud
-  description: Where are your photos and documents? With Nextcloud you pick a server
-    of your choice, at home, in a data center or at a provider. And that is where
-    your files will be. Nextcloud runs on that server, protecting your data and giving
-    you access from your desktop or mobile devices.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/nextcloud-icon.png
+- type: 1
+  title: NZBGet
+  name: nzbget
+  description: NZBGet is a usenet downloader, written in C++ and designed with performance
+    in mind to achieve maximum download speed by using very little system resources.
+    It supports all platforms including Windows, Mac, Linux and works on all devices
+    including PC, NAS, WLAN routers and media players
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/nzbget-icon.png
+  image: linuxserver/nzbget:latest
   categories:
-  - Cloud
-  - Productivity
-  - Tools
-  - Other
-  - Web
-  note: The database user is nextcloud and the database is nextcloud_db. The host
-    of the database will be located at the bottom of the DB conotainer in portainer.
+  - Downloaders
   platform: linux
-  repository:
-    url: https://github.com/SelfhostedPro/selfhosted_templates
-    stackfile: Template/Stack/nextcloud.yml
+  restart_policy: unless-stopped
+  ports:
+  - 6789:6789/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/Nzbget"
+  - container: "/downloads"
+    bind: "!downloads"
   env:
   - name: PUID
     label: PUID
@@ -817,14 +1403,34 @@
   - name: PGID
     label: PGID
     default: '100'
-  - name: TZ
-    label: TZ
-  - name: DATABASE_PASSWORD
-    label: DATABASE_PASSWORD
-  - name: MYSQL_ROOT_PASSWORD
-    label: MYSQL_ROOT_PASSWORD
-  - name: PORT
-    label: PORT
+- type: 1
+  title: NZBHydra 2
+  name: nzbhydra2
+  description: NZBHydra is a meta search for NZB indexers and the "spiritual successor"
+    to NZBmegasearcH. It provides easy access to a number of raw and newznab based
+    indexers.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/hydra-icon.png
+  image: linuxserver/nzbhydra2:latest
+  categories:
+  - Downloaders
+  - Other
+  - Tools
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 5076:5076/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/Nzbhydra2"
+  - container: "/downloads"
+    bind: "!downloads"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
 - type: 1
   title: Nginx
   name: nginx
@@ -843,7 +1449,7 @@
   - 443/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Nginx"
+    bind: "!config/Nginx"
   env:
   - name: PUID
     label: PUID
@@ -870,55 +1476,26 @@
   - 443:4443/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Nginx-Proxy"
+    bind: "!config/Nginx-Proxy"
 - type: 1
-  title: NZBGet
-  name: nzbget
-  description: NZBGet is a usenet downloader, written in C++ and designed with performance
-    in mind to achieve maximum download speed by using very little system resources.
-    It supports all platforms including Windows, Mac, Linux and works on all devices
-    including PC, NAS, WLAN routers and media players
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/nzbget-icon.png
-  image: linuxserver/nzbget:latest
+  title: OScam
+  name: oscam
+  description: |-
+    OScam is a softcam, software to be used to decrypt digital television channels on a settopbox (receiver), as an alternative for a conditional access module
+      (CAM). OScam is, compared with other softcams (CCcam, mgcamd, etc.), open source. Hence, the name Open Source Conditional Access Module (OScam). OScam is based on the
+      not so well known softcam MpCS. The main features of OSCam are next to its softcam capabilities, that it is able to function as a cardserver.
+  logo: http://i.imgur.com/8LadrLg.png
+  image: linuxserver/oscam:latest
   categories:
-  - Downloaders
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 6789:6789/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Nzbget"
-  - container: "/downloads"
-    bind: "/portainer/Downloads"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: NZBHydra 2
-  name: nzbhydra2
-  description: NZBHydra is a meta search for NZB indexers and the "spiritual successor"
-    to NZBmegasearcH. It provides easy access to a number of raw and newznab based
-    indexers.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/hydra-icon.png
-  image: linuxserver/nzbhydra2:latest
-  categories:
-  - Downloaders
   - Other
-  - Tools
   platform: linux
   restart_policy: unless-stopped
   ports:
-  - 5076:5076/tcp
+  - 8888:8888/tcp
+  - 10000:10000/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Nzbhydra2"
-  - container: "/downloads"
-    bind: "/portainer/Downloads"
+    bind: "!config/OScam"
   env:
   - name: PUID
     label: PUID
@@ -944,7 +1521,7 @@
   - 3579:3579/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Ombi"
+    bind: "!config/Ombi"
   env:
   - name: PUID
     label: PUID
@@ -971,11 +1548,11 @@
   - 1194:1194/udp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/OpenVPN-AS"
+    bind: "!config/OpenVPN-AS"
   env:
   - name: INTERFACE
     label: INTERFACE
-    set: eth0
+    default: eth0
   - name: PUID
     label: PUID
     default: '1000'
@@ -998,33 +1575,7 @@
   - 80/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Organizr"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: OScam
-  name: oscam
-  description: |-
-    OScam is a softcam, software to be used to decrypt digital television channels on a settopbox (receiver), as an alternative for a conditional access module
-      (CAM). OScam is, compared with other softcams (CCcam, mgcamd, etc.), open source. Hence, the name Open Source Conditional Access Module (OScam). OScam is based on the
-      not so well known softcam MpCS. The main features of OSCam are next to its softcam capabilities, that it is able to function as a cardserver.
-  logo: http://i.imgur.com/8LadrLg.png
-  image: linuxserver/oscam:latest
-  categories:
-  - Other
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 8888:8888/tcp
-  - 10000:10000/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/OScam"
+    bind: "!config/Organizr"
   env:
   - name: PUID
     label: PUID
@@ -1046,687 +1597,11 @@
   - 80/tcp
   volumes:
   - container: "/Pictures"
-    bind: "/portainer/Pictures"
+    bind: "!pictures"
   - container: "/Thumbs"
-    bind: "/portainer/Files/AppData/Photoshow/Thumbs"
+    bind: "!config/Photoshow/Thumbs"
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/PhotoShow"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: Snibox
-  name: snibox
-  description: Self-hosted snippet manager.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/snibox.png
-  image: snowmean/snibox-sqlite:latest
-  categories:
-  - Other
-  - Tools
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 3010:3000/tcp
-  volumes:
-  - container: "/app/db/database"
-    bind: "/portainer/Files/AppData/Config/Snibox"
-  note: Label-oriented interface with search. Supports various programming languages,
-    markdown, plain text.
-- type: 3
-  title: Bookstack
-  description: Bookstack is a free and open source Wiki designed for creating beautiful
-    documentation. Feautring a simple, but powerful WYSIWYG editor it allows for teams
-    to create detailed and useful documentation with ease.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/bookstack2.png
-  categories:
-  - Wiki
-  note: Default login is admin@admin.com with a password of password. The database
-    created is called bookstackapp and the database user is called bookstack
-  platform: linux
-  repository:
-    url: https://github.com/SelfhostedPro/selfhosted_templates
-    stackfile: Template/Stack/bookstack.yml
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-  - name: TZ
-    label: TZ
-  - name: DATABASE_PASSWORD
-    label: DATABASE_PASSWORD
-  - name: MYSQL_ROOT_PASSWORD
-    label: MYSQL_ROOT_PASSWORD
-  - name: PORT
-    label: PORT
-- type: 1
-  title: Chevereto
-  name: Chevereto
-  description: Chevereto is a powerful and fast image hosting script that allows you
-    to create your very own full featured image hosting website in just minutes. Please
-    note that this offers only the free Chevereto version..
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/Chevereto.png
-  image: nmtan/chevereto:latest
-  categories:
-  - Other
-  - Tools
-  - Photo
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 80/tcp
-  volumes:
-  - container: "/var/www/html/images"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-  - name: CHEVERETO_DB_HOST
-    label: CHEVERETO_DB_HOST
-    set: ''
-  - name: CHEVERETO_DB_USERNAME
-    label: CHEVERETO_DB_USERNAME
-    set: ''
-  - name: CHEVERETO_DB_PASSWORD
-    label: CHEVERETO_DB_PASSWORD
-    set: ''
-  - name: CHEVERETO_DB_NAME
-    label: CHEVERETO_DB_NAME
-    set: ''
-  - name: CHEVERETO_DB_PREFIX
-    label: CHEVERETO_DB_PREFIX
-    set: ''
-- type: 1
-  title: Chowdown
-  name: Chowdown
-  description: Save recipes in seconds with plain text formatting and create beatiful
-    recipe pages with automated ease.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/chowdown.png
-  image: gregyankovoy/chowdown:latest
-  categories:
-  - Other
-  - Tools
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 4000:4000/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Chowdown"
-- type: 1
-  title: Calibre Web
-  name: calibre-web
-  description: |-
-    Calibre Web is a web app providing a clean interface for browsing, reading and downloading eBooks using an existing Calibre database.
-
-      [br][br]
-      [b][u][span style='color: #E80000;']Configuration[/span][/u][/b][br]
-      [b]/config[/b] Where Calibre-web should store it's database[br]
-      [b]/books[/b] Path to your calibre library metadata.db file[br]
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/calibre-web-icon.png
-  image: linuxserver/calibre-web:latest
-  categories:
-  - Cloud
-  - Books
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 8083:8083/tcp
-  volumes:
-  - container: "/books"
-    bind: "/portainer/Books"
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Calibre-web"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: Cardigann
-  name: cardigann
-  description: Cardigann, a server for adding extra indexers to Sonarr, SickRage and
-    CouchPotato via Torznab and TorrentPotato proxies. Behind the scenes Cardigann
-    logs in and runs searches and then transforms the results into a compatible format.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/cardigann.png
-  image: linuxserver/cardigann:latest
-  categories:
-  - Downloaders
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 5060:5060/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Cardigann"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: Code Server
-  name: code-server
-  description: Code-server is VS Code running on a remote server, accessible through
-    the browser.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/code-server.png
-  image: linuxserver/code-server:latest
-  categories:
-  - Other
-  - Tools
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 8443:8443/tcp
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: GUID
-    label: PUID
-    default: '1000'
-  - name: TZ
-    label: TZ
-  - name: PASSWORD
-    label: PASSWORD
-  - name: SUDO_PASSWORD
-    label: SUDO_PASSWORD
-  - name: PROXY_DOMAIN
-    label: PROXY_DOMAIN
-    default: example.my.domain
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Code-Server"
-- type: 1
-  title: Codiad
-  name: codiad
-  description: "Codiad is a web-based IDE framework with a small footprint and minimal
-    requirements.\n  "
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/codiad-icon.png
-  image: linuxserver/codiad:latest
-  categories:
-  - Productivity
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 80/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Codiad"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: COPS
-  name: cops
-  description: COPS links to your Calibre library database and allows downloading
-    and emailing of books directly from a web browser and provides a OPDS feed to
-    connect to your devices.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/cops-icon.png
-  image: linuxserver/cops:latest
-  categories:
-  - Cloud
-  - Books
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 80/tcp
-  volumes:
-  - container: "/books"
-    bind: "/portainer/Books"
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Cops"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: CouchPotato
-  name: couchpotato
-  description: CouchPotato (CP) is an automatic NZB and torrent downloader. You can
-    keep a "movies I want"-list and it will search for NZBs/torrents of these movies
-    every X hours. Once a movie is found, it will send it to SABnzbd or download the
-    torrent to a specified directory.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/couchpotato-icon.png
-  image: linuxserver/couchpotato:latest
-  categories:
-  - Downloaders
-  - Video
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 5050:5050/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Couchpotato"
-  - container: "/downloads"
-    bind: "/portainer/Downloads"
-  - container: "/movies"
-    bind: "/portainer/Movies"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: Daapd
-  name: daapd
-  description: DAAP (iTunes) media server with support for AirPlay devices, Apple
-    Remote (and compatibles), MPD and internet radio.
-  logo: https://raw.githubusercontent.com/linuxserver/beta-templates/master/lsiodev/img/daapd-icon.png
-  image: linuxserver/daapd:latest
-  categories:
-  - Music
-  platform: linux
-  restart_policy: unless-stopped
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Daapd"
-  - container: "/music"
-    bind: "/portainer/Music"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: DashMachine
-  name: dashmachine
-  description: Another application bookmark dashboard, with fun features.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/dashmachine_logo.png
-  image: rmountjoy/dashmachine:latest
-  categories:
-  - Other
-  - Tools
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 5000:5000/tcp
-  volumes:
-  - container: "/dashmachine/dashmachine/user_data"
-    bind: "/portainer/Files/AppData/Config/Dashmachine"
-- type: 1
-  title: Davos
-  name: davos
-  description: "davos is an FTP automation tool that periodically scans given host
-    locations for new files. It can be configured for various purposes, including
-    listening for specific files to appear in the host location, ready for it to download
-    and then move, if required. It also supports completion notifications as well
-    as downstream API calls, to further the workflow.\r\n\r\n/config : AppData Location\r\n/download
-    : File Download Location"
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/davos.png
-  image: linuxserver/davos:latest
-  categories:
-  - FTP
-  - Other
-  - Tools
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 8080/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Davos"
-  - container: "/downloads"
-    bind: "/portainer/Downloads"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: DeeMix
-  name: deemix
-  description: Deemix is a deezer downloader built from the ashes of Deezloader Remix.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/deemix.png
-  image: registry.gitlab.com/bockiii/deemix-docker
-  categories:
-  - Other
-  - Music
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 9666:9666/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/DeeMix"
-  - container: "/downloads"
-    bind: "/portainer/Downloads"
-  note: Deemix may take a few minutes to install. Be sure to check the logs for details.
-    Refer to <a href='https://notabug.org/RemixDevs/DeezloaderRemix/wiki/Login+via+userToken'>this
-    page</a> for userToken details.
-- type: 1
-  title: Deluge
-  namme: deluge
-  description: 'Deluge is a lightweight, Free Software, cross-platform BitTorrent
-    client providing: Full Encryption, WebUI, Plugin System, Much more...'
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/deluge-icon.png
-  image: linuxserver/deluge:latest
-  categories:
-  - Downloaders
-  platform: linux
-  restart_policy: unless-stopped
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Deluge"
-  - container: "/downloads"
-    bind: "/portainer/Downloads"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-  - name: UMASK_SET
-    label: UMASK_SET
-    set: '000'
-- type: 1
-  title: Domoticz
-  name: domoticz
-  description: 'Domoticz is a Home Automation System that lets you monitor and configure
-    various devices like: Lights, Switches, various sensors/meters like Temperature,
-    Rain, Wind, UV, Electra, Gas, Water and much more. Notifications/Alerts can be
-    sent to any mobile device'
-  logo: https://github.com/domoticz/domoticz/raw/master/www/images/logo.png
-  image: linuxserver/domoticz:latest
-  categories:
-  - HomeAutomation
-  - Management
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 1443:1443/tcp
-  - 6144:6144/tcp
-  - 8080:8080/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Domoticz"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: Duck DNS
-  name: duckdns
-  description: "Duck DNS is a free service which will point a DNS (sub domains of
-    duckdns.org) to an IP of your choice. The service is completely free, and doesn't
-    require reactivation or forum posts to maintain its existence.\r\n\r\nFirst, go
-    to duckdns site, register your subdomain and retrieve your token\r\nThen run the
-    docker create command above with your subdomain(s) and token\r\nIt will update
-    your IP with the DuckDNS service every 5 minutes\r\n\r\n"
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/duckdns.png
-  image: linuxserver/duckdns:latest
-  categories:
-  - DNS
-  - Tools
-  platform: linux
-  restart_policy: unless-stopped
-  env:
-  - name: SUBDOMAINS
-    label: SUBDOMAINS
-    set: ''
-  - name: TOKEN
-    label: TOKEN
-    set: ''
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: Duplicati
-  name: duplicati
-  description: Free backup software to store encrypted backups online, Duplicati works
-    with standard protocols like FTP, SSH, WebDAV as well as popular services like
-    Microsoft OneDrive, Amazon Cloud Drive and S3, Google Drive, box.com, Mega, hubiC
-    and many others.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/duplicati-icon.png
-  image: linuxserver/duplicati:latest
-  categories:
-  - Backup
-  - Cloud
-  - Other
-  - Productivity
-  - Tools
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 8200:8200/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Duplicati"
-  - container: "/tmp"
-  - container: "/backups"
-  - container: "/source"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: Emby
-  name: emby
-  description: Emby organizes video, music, live TV, and photos from personal media
-    libraries and streams them to smart TVs, streaming boxes and mobile devices. This
-    container is packaged as a standalone emby Media Server.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/emby.png
-  image: linuxserver/emby:latest
-  categories:
-  - Video
-  - Music
-  - Photos
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 8096:8096/tcp
-  - 8920:8920/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Emby"
-  - container: "/data/tvshows"
-    bind: "/portainer/TV"
-  - container: "/data/movies"
-    bind: "/portainer/Movies"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-  - name: TZ
-    label: TZ
-- type: 1
-  title: FileBrowser
-  name: filebrowser
-  description: Web File Browser which can be used as a middleware or standalone app.
-  note: The default user and password is admin/admin.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/filebrowser.png
-  image: 80x86/filebrowser:latest
-  categories:
-  - Other
-  - Tools
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 8082:8082/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/FileBrowser"
-  - container: "/myfiles"
-    bind: "/portainer/Files/AppData/Config"
-- type: 1
-  title: FreshRSS
-  name: freshrss
-  description: A free, self-hostable rss aggregator…
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/freshrss-icon.png
-  image: linuxserver/freshrss:latest
-  categories:
-  - Other
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 80/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/freshrss"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: Gazee
-  name: gazee
-  description: A WebApp Comic Reader for your favorite digital comics. Reach and read
-    your comic library from any web connected device with a modern web browser
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/gazee-logo.png
-  image: linuxserver/gazee:latest
-  categories:
-  - Web
-  - Books
-  - Tools
-  platform: linux
-  restart_policy: unless-stopped
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Gazee"
-  - container: "/comics"
-    bind: "/portainer/Comics"
-  - container: "/mylar"
-    bind: "/portainer/Files/AppData/Gazee"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: Grocy
-  name: grocy
-  description: Grocy is an ERP system for your kitchen! Cut down on food waste, and
-    manage your chores with this brilliant utulity.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/grocy_logo.png
-  image: linuxserver/grocy:latest
-  categories:
-  - Other
-  - Tools
-  - Finance
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 80/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Grocy"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-  - name: TZ
-    label: Timezone
-- type: 1
-  title: Guacamole
-  name: guacamole
-  description: A clientless remote desktop gateway.
-  note: The default login will be guacadmin/guacadmin. It is common practice to add
-    a new admin user and remove the default user for Guacamole.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/guacamole.png
-  image: oznu/guacamole:latest
-  categories:
-  - Other
-  - Tools
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 8080:8080/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Guacamole"
-- type: 1
-  title: HTPC Manager
-  name: htpcmanager
-  description: HTPC Manaager, a front end for many htpc related applications. Hellowlol
-    version.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/htpcmanager-icon.png
-  image: linuxserver/htpcmanager:latest
-  categories:
-  - Video
-  - Music
-  - Other
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 8085:8085/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/HTPCmanager"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: lidarr
-  name: lidarr
-  description: Lidarr is a music collection manager for Usenet and BitTorrent users.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/lidarr.png
-  image: linuxserver/lidarr:latest
-  categories:
-  - Downloaders
-  - Music
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 8686:8686/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Lidarr"
-  - container: "/downloads"
-    bind: "/portainer/Downloads"
-  - container: "/music"
-    bind: "/portainer/Music"
+    bind: "!config/PhotoShow"
   env:
   - name: PUID
     label: PUID
@@ -1754,9 +1629,9 @@
   - 4443:443/tcp
   volumes:
   - container: "/etc/pihole"
-    bind: "/portainer/Files/AppData/Config/PiHole"
+    bind: "!config/PiHole"
   - container: "/etc/dnsmasq.d"
-    bind: "/portainer/Files/AppData/Config/PiHole/DNS"
+    bind: "!config/PiHole/DNS"
   note: When the installation is complete, navigate to your.ip.goes.here:1010/admin.
     Follow the article <a href='https://medium.com/@niktrix/getting-rid-of-systemd-resolved-consuming-port-53-605f0234f32f'>here</a>
     if you run into issues binding to port 53.
@@ -1775,7 +1650,7 @@
   - 80/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/PiWigo"
+    bind: "!config/PiWigo"
   env:
   - name: PUID
     label: PUID
@@ -1799,11 +1674,11 @@
   network: host
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Plex"
+    bind: "!config/Plex"
   - container: "/tv"
-    bind: "/portainer/TV"
+    bind: "!tv"
   - container: "/movies"
-    bind: "/portainer/Movies"
+    bind: "!movies"
   env:
   - name: PUID
     label: PUID
@@ -1813,7 +1688,7 @@
     default: '100'
   - name: VERSION
     label: VERSION
-    set: latest
+    default: latest
 - type: 1
   title: Plex Requests
   name: plexrequests
@@ -1831,7 +1706,7 @@
   - 3000:3000/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/PlexRequests"
+    bind: "!config/PlexRequests"
   env:
   - name: PUID
     label: PUID
@@ -1841,7 +1716,7 @@
     default: '100'
   - name: URL_BASE
     label: URL_BASE
-    set: ''
+    default: ''
 - type: 1
   title: ProjectSend
   name: projectsend
@@ -1862,9 +1737,9 @@
   - 80/tcp
   volumes:
   - container: "/data"
-    bind: "/portainer/Files/AppData/ProjectSend"
+    bind: "!data/ProjectSend"
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/ProjectSend"
+    bind: "!config/ProjectSend"
   env:
   - name: PUID
     label: PUID
@@ -1893,36 +1768,7 @@
   - 25/tcp
   volumes:
   - container: "/root"
-    bind: "/portainer/Files/AppData/ProtonMail-Bridge"
-- type: 3
-  title: Pritunl
-  name: pritunl
-  description: Pritunl container built on Alpine Linux. Supports IPv6 and running
-    behind a reverse proxy. This container requires an external Mongo DB and should
-    be run via Docker Compose or other orchestration.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/pritunl/Images/pritunl.png
-  categories:
-  - VPN
-  - Tools
-  - Other
-  - Web
-  note: 'Documentation on this containier can be found here: <a href=https://hub.docker.com/r/goofball222/pritunl>https://hub.docker.com/r/goofball222/pritunl</a>'
-  platform: linux
-  repository:
-    url: https://github.com/SelfhostedPro/selfhosted_templates
-    stackfile: Template/Stack/pritunl.yml
-  env:
-  - name: REVERSE_PROXY
-    label: REVERSE_PROXY
-    default: 'false'
-  - name: PRITUNL_OPTS
-    label: PRITUNL_OPTS
-  - name: MONGODB_URI
-    label: MONGODB_URI
-    default: mongodb://mongo:27017/pritunl
-  - name: WIREGUARD
-    label: WIREGUARD
-    default: 'false'
+    bind: "!config/ProtonMail-Bridge"
 - type: 1
   title: Pydio
   name: pydio
@@ -1942,36 +1788,9 @@
   - 443/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Pydio"
+    bind: "!config/Pydio"
   - container: "/data"
-    bind: "/portainer/Files/AppData/Pydio"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: qBittorrent
-  name: qbittorrent
-  description: The qBittorrent project aims to provide an open-source software alternative
-    to µTorrent. qBittorrent is based on the Qt toolkit and libtorrent-rasterbar library.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/qbittorrent-icon.png
-  image: linuxserver/qbittorrent:latest
-  categories:
-  - Downloaders
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 6881:6881/tcp
-  - 6881:6881/udp
-  - 8080:8080/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/qBittorrent"
-  - container: "/downloads"
-    bind: "/portainer/Downloads"
+    bind: "!data/Pydio"
   env:
   - name: PUID
     label: PUID
@@ -1996,7 +1815,7 @@
   - 4242:4242/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Quassel-core"
+    bind: "!config/Quassel-core"
   env:
   - name: PUID
     label: PUID
@@ -2019,11 +1838,11 @@
   - 7878:7878/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Radarr"
+    bind: "!config/Radarr"
   - container: "/downloads"
-    bind: "/portainer/Downloads"
+    bind: "!downloads"
   - container: "/movies"
-    bind: "/portainer/Movies"
+    bind: "!movies"
   env:
   - name: PUID
     label: PUID
@@ -2047,7 +1866,7 @@
   - 80/tcp
   volumes:
   - container: "/usr/src/app"
-    bind: "/portainer/Files/AppData/Config/ReactiveResume"
+    bind: "!config/ReactiveResume"
 - type: 1
   title: Resilio Sync
   name: resilio-sync
@@ -2057,7 +1876,7 @@
   logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/resilio.png
   image: linuxserver/resilio-sync:latest
   categories:
-  - Backup
+  - 'Backup:'
   - Cloud
   - Other
   - Tools
@@ -2065,36 +1884,10 @@
   restart_policy: unless-stopped
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Resilio-Sync"
+    bind: "!config/Resilio-Sync"
   - container: "/sync"
   - container: "/downloads"
-    bind: "/portainer/Downloads"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
-  title: ruTorrent
-  name: rutorrent
-  description: Popular torrent client with a webui for ease of use.
-  logo: https://raw.githubusercontent.com/linuxserver/beta-templates/master/lsiodev/img/rutorrent-icon.png
-  image: linuxserver/rutorrent:latest
-  categories:
-  - Downloaders
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 80/tcp
-  - 51413:51413/tcp
-  - 6881:6881/udp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/ruTorrent"
-  - container: "/downloads"
-    bind: "/portainer/Downloads"
+    bind: "!downloads"
   env:
   - name: PUID
     label: PUID
@@ -2120,11 +1913,11 @@
   - 9090:9090/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Sabnzbd"
+    bind: "!config/Sabnzbd"
   - container: "/downloads"
-    bind: "/portainer/Downloads"
+    bind: "!downloads"
   - container: "/incomplete-downloads"
-    bind: "/portainer/Downloads/incomplete"
+    bind: "!downloads/incomplete"
   env:
   - name: PUID
     label: PUID
@@ -2149,7 +1942,7 @@
   - 8080/tcp
   volumes:
   - container: "/srv/shiori"
-    bind: "/portainer/Files/AppData/Config/Shiori"
+    bind: "!config/Shiori"
 - type: 1
   title: SickChill
   name: sickchill
@@ -2166,11 +1959,11 @@
   - 8081:8081/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/SickChill"
+    bind: "!config/SickChill"
   - container: "/downloads"
-    bind: "/portainer/Downloads"
+    bind: "!downloads"
   - container: "/tv"
-    bind: "/portainer/TV"
+    bind: "!tv"
   env:
   - name: PUID
     label: PUID
@@ -2194,11 +1987,11 @@
   - 8081:8081/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/SickGear"
+    bind: "!config/SickGear"
   - container: "/tv"
-    bind: "/portainer/TV"
+    bind: "!tv"
   - container: "/downloads"
-    bind: "/portainer/Downloads"
+    bind: "!downloads"
   env:
   - name: PUID
     label: PUID
@@ -2220,9 +2013,9 @@
   - 80/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Smokeping"
+    bind: "!config/Smokeping"
   - container: "/data"
-    bind: "/portainer/Files/AppData/Smokeping"
+    bind: "!data/Smokeping"
   env:
   - name: PUID
     label: PUID
@@ -2248,13 +2041,13 @@
   - 8989:8989/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Sonarr"
+    bind: "!config/Sonarr"
   - container: "/dev/rtc"
     bind: "/dev/rtc"
   - container: "/tv"
-    bind: "/portainer/TV"
+    bind: "!tv"
   - container: "/downloads"
-    bind: "/portainer/Downloads"
+    bind: "!downloads"
   env:
   - name: PUID
     label: PUID
@@ -2269,7 +2062,7 @@
   logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/syncthing-icon.png
   image: linuxserver/syncthing:latest
   categories:
-  - Backup
+  - 'Backup:'
   - Cloud
   - Other
   - Tools
@@ -2281,7 +2074,7 @@
   - 22000:22000/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Syncthing"
+    bind: "!config/Syncthing"
   - container: "/sync"
   env:
   - name: PUID
@@ -2313,9 +2106,9 @@
   - 8181:8181/tcp
   volumes:
   - container: "/logs"
-    bind: "/portainer/Logs"
+    bind: "!logs"
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Tautulli"
+    bind: "!config/Tautulli"
   env:
   - name: PUID
     label: PUID
@@ -2337,7 +2130,7 @@
   - 9000:9000/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/TheLounge"
+    bind: "!config/TheLounge"
   env:
   - name: PUID
     label: PUID
@@ -2360,7 +2153,31 @@
   - 8080:8080/tcp
   volumes:
   - container: "/var/lib/tiddlywiki"
-    bind: "/portainer/Files/AppData/Config/TiddlyWiki"
+    bind: "!config/TiddlyWiki"
+- type: 1
+  title: Tiny Tiny RSS
+  name: tt-rss
+  description: Tiny Tiny RSS is an open source web-based news feed (RSS/Atom) reader
+    and aggregator, designed to allow you to read news from any location, while feeling
+    as close to a real desktop application as possible.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/tt-rss-icon.png
+  image: lunik1/tt-rss:latest
+  categories:
+  - Other
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 80/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/tt-rss"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
 - type: 1
   title: Transmission
   name: transmission
@@ -2379,9 +2196,9 @@
   - 51413:51413/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Transmission"
+    bind: "!config/Transmission"
   - container: "/downloads"
-    bind: "/portainer/Files/Downloads"
+    bind: "!downloads"
   - container: "/watch"
   env:
   - name: PUID
@@ -2410,9 +2227,13 @@
   - 9091:9091/tcp
   volumes:
   - container: "/data"
-    bind: "/portainer/Downloads"
+    bind: "!downloads"
   - container: "/etc/localtime"
-    bind: "/etc/localtime"
+    bind: "!localtime"
+  sysctls:
+  - net.ipv6.conf.all.disable_ipv6: '0'
+  cap_add:
+  - NET_ADMIN
   env:
   - name: PUID
     label: PUID
@@ -2434,30 +2255,6 @@
     label: LOCAL_NETWORK
     default: 192.168.0.0/24
 - type: 1
-  title: Tiny Tiny RSS
-  name: tt-rss
-  description: Tiny Tiny RSS is an open source web-based news feed (RSS/Atom) reader
-    and aggregator, designed to allow you to read news from any location, while feeling
-    as close to a real desktop application as possible.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/tt-rss-icon.png
-  image: lunik1/tt-rss:latest
-  categories:
-  - Other
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 80/tcp
-  volumes:
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/tt-rss"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '100'
-- type: 1
   title: Tvheadend
   name: tvheadend
   description: "Tvheadend is a TV streaming server and recorder for Linux, FreeBSD
@@ -2477,7 +2274,7 @@
   - 9982:9982/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/TVHeadend"
+    bind: "!config/TVHeadend"
   - container: "/recordings"
   env:
   - name: PUID
@@ -2509,7 +2306,7 @@
   env:
   - name: MAXMEM
     label: MAXMEM
-    set: '512'
+    default: '512'
   - name: PUID
     label: PUID
     default: '1000'
@@ -2538,7 +2335,7 @@
   - 6789:6789/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Unifi"
+    bind: "!config/Unifi"
   env:
   - name: PUID
     label: PUID
@@ -2584,9 +2381,9 @@
   restart_policy: unless-stopped
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/WebGrabPlus"
+    bind: "!config/WebGrabPlus"
   - container: "/data"
-    bind: "/portainer/Files/AppData/WebGrabPlus"
+    bind: "!data/WebGrabPlus"
   env:
   - name: PUID
     label: PUID
@@ -2609,10 +2406,10 @@
   - 5001:5000/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Whoogle"
+    bind: "!config/Whoogle"
 - type: 1
   title: Wikijs
-  name: wikijs
+  name: Wikijs
   description: Wikijs A modern, lightweight and powerful wiki app built on NodeJS.
   logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/wikijs.png
   image: linuxserver/wikijs:latest
@@ -2625,9 +2422,9 @@
   - 3100:3000/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/Wikijs"
+    bind: "!config/Wikijs"
   - container: "/data"
-    bind: "/portainer/Files/AppData/Config/Wikijs/data"
+    bind: "!data/Wikijs"
 - type: 1
   title: YouTubeDL-Material
   name: youtubedl-material
@@ -2644,57 +2441,15 @@
   - 17442:17442/tcp
   volumes:
   - container: "/app/appdata"
-    bind: "/portainer/Files/AppData/Config/YTDLM"
+    bind: "!config/YTDLM"
   - container: "/app/video"
-    bind: "/portainer/Files/AppData/Youtube/Video"
+    bind: "!config/Youtube/Video"
   - container: "/app/subscriptions"
-    bind: "/portainer/Files/AppData/Youtube/Subscriptions"
+    bind: "!config/Youtube/Subscriptions"
   - container: "/app/users"
-    bind: "/portainer/Files/AppData/Youtube/Users"
+    bind: "!config/Youtube/Users"
   - container: "/app/audio"
-    bind: "/portainer/Files/AppData/Youtube/Audio"
-- type: 1
-  title: UniFi Video
-  name: UniFi Video
-  description: UniFi Video is a powerful and flexible, integrated IP video management
-    surveillance system designed to work with Ubiquiti’s UniFi Video Camera product
-    line. UniFi Video has an intuitive, configurable, and feature‑packed user interface
-    with advanced features such as motion detection, auto‑discovery, user‑level security,
-    storage management, reporting, and mobile device support.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/UniFiVideo-logo.png
-  image: pducharme/unifi-video-controller:latest
-  categories:
-  - CCTV
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 1935:1935/tcp
-  - 7444:7444/tcp
-  - 7447:7447/tcp
-  - 6666:6666/tcp
-  - 7442:7442/tcp
-  - 7080:7080/tcp
-  - 7443:7443/tcp
-  - 7445:7445/tcp
-  - 7446:7446/tcp
-  volumes:
-  - container: "/recordings"
-    bind: "/portainer/Files/AppData/Config/UnifFiVideo/Recordings/"
-  - container: "/config"
-    bind: "/portainer/Files/AppData/Config/UniFiVideo/"
-  env:
-  - name: PUID
-    label: PUID
-    default: '99'
-  - name: PGID
-    label: PGID
-    default: '100'
-  - name: UMASK
-    label: UMASK
-    default: '002'
-  - name: CONTEXT_PATH
-    label: CONTEXT_PATH
-    set: UniFi Video
+    bind: "!config/Youtube/Audio"
 - type: 1
   title: ZNC
   name: znc
@@ -2712,7 +2467,87 @@
   - 6501:6501/tcp
   volumes:
   - container: "/config"
-    bind: "/portainer/Files/AppData/Config/ZNC"
+    bind: "!config/ZNC"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+- type: 1
+  title: lidarr
+  name: lidarr
+  description: Lidarr is a music collection manager for Usenet and BitTorrent users.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/lidarr.png
+  image: linuxserver/lidarr:latest
+  categories:
+  - Downloaders
+  - Music
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 8686:8686/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/Lidarr"
+  - container: "/downloads"
+    bind: "!downloads"
+  - container: "/music"
+    bind: "!music"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+- type: 1
+  title: qBittorrent
+  name: qbittorrent
+  description: The qBittorrent project aims to provide an open-source software alternative
+    to µTorrent. qBittorrent is based on the Qt toolkit and libtorrent-rasterbar library.
+  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/qbittorrent-icon.png
+  image: linuxserver/qbittorrent:latest
+  categories:
+  - Downloaders
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 6881:6881/tcp
+  - 6881:6881/udp
+  - 8080:8080/tcp
+  volumes:
+  - container: "/config"
+    bind: "!config/qBittorrent"
+  - container: "/downloads"
+    bind: "!downloads"
+  env:
+  - name: PUID
+    label: PUID
+    default: '1000'
+  - name: PGID
+    label: PGID
+    default: '100'
+- type: 1
+  title: ruTorrent
+  name: rutorrent
+  description: Popular torrent client with a webui for ease of use.
+  logo: https://raw.githubusercontent.com/linuxserver/beta-templates/master/lsiodev/img/rutorrent-icon.png
+  image: linuxserver/rutorrent:latest
+  categories:
+  - Downloaders
+  platform: linux
+  restart_policy: unless-stopped
+  ports:
+  - 80/tcp
+  - 51413:51413/tcp
+  - 6881:6881/udp
+  volumes:
+  - container: "/config"
+    bind: "!config/ruTorrent"
+  - container: "/downloads"
+    bind: "!downloads"
   env:
   - name: PUID
     label: PUID
