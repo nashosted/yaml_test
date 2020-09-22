@@ -12,7 +12,7 @@ restart_policy: unless-stopped
 ports:
 - 80:80/tcp
 volumes:
-- container: "/config
+- container: "/config"
   bind: "!config"
 env:
 - name: PUID
