@@ -10,7 +10,7 @@
   image: linuxserver/airsonic:latest
   categories:
   - Music
-  platform: linux1
+  platform: linux
   restart_policy: unless-stopped
   ports:
   - 4040:4040/tcp
