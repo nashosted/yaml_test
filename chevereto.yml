@@ -1,26 +1,26 @@
 ---
 - type: 1
-  title: Chevereto
-  name: chevereto
-  description: Chevereto is an image hosting software that allows you to create a beautiful and full-featured image hosting website on your own server. It's your hosting and your rules, so say goodbye to closures and restrictions.
-  logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/chevereto.png
-  image: linuxserver/chevereto
-  categories:
-  - Photos
-  platform: linux
-  restart_policy: unless-stopped
-  ports:
-  - 80:80/tcp
-  - 443:443/tcp
-  volumes:
-  - container: "/config
-    bind: "!config"
-  env:
-  - name: PUID
-    label: PUID
-    default: '1000'
-  - name: PGID
-    label: PGID
-    default: '1000'
-  - name: TZ
-    label: TZ
+title: Chevereto
+name: chevereto
+description: Chevereto is an image hosting software that allows you to create a beautiful and full-featured image hosting website on your own server. It's your hosting and your rules, so say goodbye to closures and restrictions.
+logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/chevereto.png
+image: linuxserver/chevereto
+categories:
+- Music
+platform: linux
+restart_policy: unless-stopped
+ports:
+- 80:80/tcp
+- 443:443/tcp
+volumes:
+- container: "/config
+  bind: "!config"
+env:
+- name: PUID
+  label: PUID
+  default: '1000'
+- name: PGID
+  label: PGID
+  default: '1000'
+- name: TZ
+  label: TZ
