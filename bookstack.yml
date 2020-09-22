@@ -7,13 +7,13 @@ description: Airsonic is a free, web-based media streamer, providing ubiqutious 
   music while at work. You can stream to multiple players simultaneously, for instance
   to one player in your kitchen and another in your living room.
 logo: https://raw.githubusercontent.com/SelfhostedPro/selfhosted_templates/master/Images/airsonic-logo.png
-image: linuxserver/airsonic:latest
+image: linuxserver/bookstack
 categories:
 - Music
 platform: linux
 restart_policy: unless-stopped
 ports:
-- 4040:4040/tcp
+- 8912:80/tcp
 volumes:
 - container: "/music"
   bind: "/portainer/Music"
@@ -31,7 +31,7 @@ env:
   default: '1000'
 - name: PGID
   label: PGID
-  default: '100'
+  default: '1000'
 - name: CONTEXT_PATH
   label: CONTEXT_PATH
   set: airsonic
